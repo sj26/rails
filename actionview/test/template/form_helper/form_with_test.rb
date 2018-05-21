@@ -736,6 +736,27 @@ class FormWithActsLikeFormForTest < FormWithTest
     assert_dom_equal expected, output_buffer
   end
 
+  def test_form_with_with_scope_false
+    form_with(model: @post, scope: false, id: "create-post") do |f|
+      concat f.label(:title, class: "post_title")
+      concat f.text_field(:title)
+      concat f.text_area(:body)
+      concat f.check_box(:secret)
+      concat f.submit("Create post")
+    end
+
+    expected = whole_form("/posts/123", "create-post", method: "patch") do
+      "<label for='title' class='post_title'>Title</label>" \
+      "<input name='title' value='Hello World' type='text' id='title' />" \
+      "<textarea name='body' id='body'>\nBack to the hill and over it again!</textarea>" \
+      "<input name='secret' value='0' type='hidden' />" \
+      "<input name='secret' checked='checked' value='1' type='checkbox' id='secret' />" \
+      "<input name='commit' value='Create post' data-disable-with='Create post' type='submit' />"
+    end
+
+    assert_dom_equal expected, output_buffer
+  end
+
   def test_form_with_with_method_as_part_of_html_options
     form_with(model: @post, url: "/", id: "create-post", html: { method: :delete }) do |f|
       concat f.text_field(:title)
